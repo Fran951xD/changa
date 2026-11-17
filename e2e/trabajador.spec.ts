@@ -1,0 +1,41 @@
+import { test, expect } from "@playwright/test";
+import { login } from "./helpers";
+
+test("un trabajador nuevo se registra, verifica su celular y publica su tarjeta", async ({ page }) => {
+  await login(page, `nueva.electricista.${Date.now()}@changa.test`);
+  await page.getByRole("button", { name: "Armar mi tarjeta" }).click();
+  await expect(page.getByRole("heading", { name: "Tu tarjeta" })).toBeVisible();
+
+  // Publicar sin datos explica qué falta.
+  await page.getByLabel("Tu nombre").fill("Rosa Benítez");
+  await page.getByRole("button", { name: "Guardar y publicar" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Para publicar te falta" })).toContainText("al menos un oficio");
+
+  // Celular: número como lo escribe la gente; el código aparece en modo demo.
+  await page.getByLabel("Número de celular").fill("11 15 4321-0000");
+  await page.getByRole("button", { name: "Mandarme el código" }).click();
+  const code = await page.locator(".aviso-demo strong").textContent();
+  await page.getByLabel("Código de 6 números").fill(code!);
+  await page.getByRole("button", { name: "Verificar" }).click();
+  await expect(page.getByText("Verificado: 11 4321-0000")).toBeVisible();
+
+  await page.getByPlaceholder("Buscar: gas, pintor, aire…").fill("electri");
+  await page.getByText("Electricidad", { exact: true }).click();
+  await page.getByLabel("Agregá barrios o localidades").fill("caba");
+  await page.getByRole("option", { name: /Caballito/ }).click();
+  await page.getByLabel("Agregá barrios o localidades").fill("almag");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("button", { name: "Quitar Almagro" })).toBeVisible();
+  await page.getByLabel("Atiendo urgencias fuera de horario").check();
+  await page.getByLabel("Número de matrícula").fill("MAT-12345");
+
+  await page.getByRole("button", { name: "Guardar y publicar" }).click();
+  await expect(page).toHaveURL(/\/panel\?publicado=1/);
+  await expect(page.getByText("¡Publicaste tu tarjeta!")).toBeVisible();
+
+  await page.getByRole("link", { name: "Ver mi perfil público" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Rosa Benítez" })).toBeVisible();
+  await expect(page.getByText("Matrícula informada").first()).toBeVisible();
+  // El teléfono no está en el HTML del perfil.
+  expect(await page.content()).not.toContain("5491143210000");
+});
