@@ -77,7 +77,15 @@ test("primero la provincia: las ciudades se filtran a esa provincia y se puede b
   await page.getByRole("button", { name: "Buscar" }).click();
   await expect(page).toHaveURL(/zona=san-rafael/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("cerca de San Rafael");
-  await expect(page.getByText(/Probá con una zona vecina/)).toBeVisible(); // la semilla solo tiene CABA y GBA
+});
+
+test("hay trabajadores de ejemplo en otras provincias, con página indexable", async ({ page, request }) => {
+  await page.goto("/plomeros/cordoba");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("cerca de Córdoba");
+  await expect(page.locator(".iman").first()).toBeVisible();
+  await page.goto("/electricistas/la-plata");
+  await expect(page.locator(".iman").first()).toBeVisible();
+  expect(await (await request.get("/sitemap.xml")).text()).toContain("/plomeros/cordoba</loc>");
 });
 
 test("al sacar los filtros, los chips quedan destildados", async ({ page }) => {

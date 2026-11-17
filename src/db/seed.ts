@@ -1,4 +1,4 @@
-/* Semilla de datos de ejemplo: 60 trabajadores ficticios en CABA y GBA, con reseñas,
+/* Semilla de datos de ejemplo: 60 trabajadores ficticios en CABA y GBA y 37 en el resto de las provincias, con reseñas,
    contactos y visitas de las últimas 8 semanas. Es determinística (mismo resultado cada vez).
    Uso: npm run db:seed */
 import sharp from "sharp";
@@ -110,21 +110,37 @@ async function main() {
   const skins = ["#f1c7a5", "#e0ac83", "#c68c62", "#a86f48", "#7d5135"];
   const hairs = ["#2b1d14", "#4a3020", "#191919", "#6b4a2b", "#8a8a8a"];
 
-  console.log("Creando 60 trabajadores…");
-  for (let i = 0; i < 60; i++) {
+  // Después de los 60 de CABA y GBA, algunos en cada provincia (más en las ciudades grandes),
+  // para que la demo muestre resultados en todo el país. Van al final: los 60 primeros salen idénticos.
+  const EXTRA: [string, number][] = [
+    ["cordoba", 4], ["santa-fe", 4], ["mendoza", 3], ["buenos-aires", 3], ["tucuman", 2], ["salta", 2], ["neuquen", 2], ["entre-rios", 2],
+    ["catamarca", 1], ["chaco", 1], ["chubut", 1], ["corrientes", 1], ["formosa", 1], ["jujuy", 1], ["la-pampa", 1], ["la-rioja", 1],
+    ["misiones", 1], ["rio-negro", 1], ["san-juan", 1], ["san-luis", 1], ["santa-cruz", 1], ["santiago-del-estero", 1], ["tierra-del-fuego", 1],
+  ];
+  // En Buenos Aires, el interior (La Plata, Mar del Plata, Bahía Blanca…): el GBA ya está cubierto.
+  const poolOf = (p: string) => ALL_AREAS.filter((a) => a.province === p && !a.region.startsWith("GBA "));
+  const extraPools = EXTRA.flatMap(([p, n]) => Array.from({ length: n }, () => poolOf(p)));
+  const TOTAL = 60 + extraPools.length;
+
+  console.log(`Creando ${TOTAL} trabajadores…`);
+  for (let i = 0; i < TOTAL; i++) {
     const female = (i === 0 ? false : chance(0.25));
     const first = i === 0 ? "Juan" : pick(female ? FIRST_F : FIRST_M);
     const last = i === 0 ? "Pérez" : pick(LAST);
-    const mainTrade = i === 0 ? "plomeria" : weighted[i % weighted.length];
+    // En provincia, los oficios que más se buscan, rotando: así cada provincia tiene variedad útil.
+    const COMMON = ["plomeria", "electricidad", "gas", "aires", "pintura", "cerrajeria"];
+    const mainTrade = i === 0 ? "plomeria" : i < 60 ? weighted[i % weighted.length] : COMMON[(i - 60) % COMMON.length];
     const trades = [mainTrade];
     if (mainTrade === "plomeria" && chance(0.5)) trades.push("gas");
     if (mainTrade === "electricidad" && chance(0.3)) trades.push("aires");
     if (mainTrade === "albanileria" && chance(0.5)) trades.push("pintura");
     const trade = TRADE_BY_SLUG.get(mainTrade)!;
 
-    const home = i === 0 ? AREAS.find((a) => a.slug === "palermo")! : AREAS[Math.floor(rand() ** 1.3 * AREAS.length)];
-    const radiusMode = i !== 0 && chance(0.2);
-    const near = AREAS.filter((a) => a.slug !== home.slug && distanceKm(home.lat, home.lng, a.lat, a.lng) < 6.5)
+    const pool = i < 60 ? AREAS : extraPools[i - 60];
+    // En provincia, sesgo a la primera ciudad de la lista (la capital); las ciudades están más lejos entre sí: 25 km.
+    const home = i === 0 ? AREAS.find((a) => a.slug === "palermo")! : pool[Math.floor(rand() ** (i < 60 ? 1.3 : 2.5) * pool.length)];
+    const radiusMode = i !== 0 && chance(i < 60 ? 0.2 : 0.35);
+    const near = pool.filter((a) => a.slug !== home.slug && distanceKm(home.lat, home.lng, a.lat, a.lng) < (i < 60 ? 6.5 : 25))
       .sort(() => rand() - 0.5).slice(0, int(2, 8));
     const areas = [home, ...near];
 
@@ -139,7 +155,7 @@ async function main() {
       slug,
       displayName: `${first} ${last}`,
       photoId: photo.id,
-      description: pick(DESCRIPTIONS[mainTrade]),
+      description: pick(DESCRIPTIONS[mainTrade]).replace("CABA y GBA", i < 60 ? "CABA y GBA" : "Toda la provincia"),
       yearsExperience: int(2, 30),
       phone: `549110000${String(1000 + i).padStart(4, "0")}`, // rango 11 0000-xxxx: no asignado a celulares reales
       phoneVerifiedAt: new Date(now - int(10, 300) * DAY),
@@ -151,7 +167,7 @@ async function main() {
       zoneMode: radiusMode ? "radius" : "areas",
       baseLat: home.lat + (radiusMode ? (rand() - 0.5) * 0.01 : 0),
       baseLng: home.lng + (radiusMode ? (rand() - 0.5) * 0.01 : 0),
-      radiusKm: radiusMode ? pick([5, 8, 10, 15]) : null,
+      radiusKm: radiusMode ? pick(i < 60 ? [5, 8, 10, 15] : [10, 15, 20, 30]) : null,
       status: "published",
       createdAt: new Date(now - int(30, 400) * DAY),
     }).returning();
@@ -200,7 +216,7 @@ async function main() {
     if (i === 0) {
       await db.insert(s.contacts).values({ workerId: w.id, visitorId: "seed-demo", userId: demoClient.id, channel: "whatsapp", createdAt: new Date(now - 3 * DAY) });
     }
-    if (i % 10 === 9) console.log(`  ${i + 1}/60`);
+    if (i % 10 === 9 || i === TOTAL - 1) console.log(`  ${i + 1}/${TOTAL}`);
   }
   console.log("Listo. Cuentas de prueba: juan@changa.test (trabajador), cliente@changa.test (cliente), admin@changa.test (moderación).");
   process.exit(0);
