@@ -2,7 +2,7 @@
 
 En Argentina, conseguir un plomero, electricista o gasista de confianza depende del boca en boca o de grupos de WhatsApp. Y mucha gente de oficio no tiene dónde mostrarse más allá de su cuadra. **Changa** conecta a las dos partes: cada trabajador publica su oficio, su zona y su número; quien necesita un servicio lo encuentra, lee reseñas de vecinos que de verdad lo contactaron y le escribe por WhatsApp en segundos.
 
-**Demo:** _(todavía sin publicar: ver [Despliegue](#despliegue-vercel--neon-gratis))_
+**Demo:** https://changa-kappa.vercel.app · entrá con `juan@changa.test` (trabajador), `cliente@changa.test` (clienta) o `admin@changa.test` (moderación): en la demo el enlace de ingreso aparece en pantalla.
 
 | Portada | Resultados | Perfil | Panel |
 |---|---|---|---|
@@ -109,7 +109,7 @@ La integración continua (`.github/workflows/ci.yml`) corre tipos, lint, unitari
 
 ## Pendiente / límites conocidos
 
-- **No está publicado:** crear las cuentas de Neon, Vercel, Google, Resend, Twilio y Cloudflare necesita tus credenciales.
+- **La demo corre en modo demo:** sin mail, SMS, Google ni Turnstile configurados.
 - **El SMS cuesta plata** (Twilio). Una alternativa gratis a evaluar: verificar pidiendo que el trabajador mande un WhatsApp a un número de Changa.
 - **Matrícula:** se muestra como "informada". No se valida contra los entes (Enargas, colegios).
 - **Avisos al trabajador:** los pedidos de presupuesto aparecen en el panel, sin mail ni push.
