@@ -20,6 +20,6 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     timeout: 180_000,
     reuseExistingServer: false,
-    env: { DATABASE_URL: ".data/e2e", DEMO_MODE: "1", NEXT_PUBLIC_SITE_URL: `http://localhost:${PORT}` },
+    env: { DATABASE_URL: ".data/e2e", DEMO_MODE: "1", RATE_LIMIT_PER_MIN: "100000", NEXT_PUBLIC_SITE_URL: `http://localhost:${PORT}` },
   },
 });

@@ -30,6 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </Link>
             <nav aria-label="Principal">
               <Link href="/buscar">Buscar</Link>
+              {user?.isAdmin && <Link href="/admin">Moderación</Link>}
               {user ? <Link href="/panel">Mi panel</Link> : <Link href="/ingresar">Entrar</Link>}
             </nav>
           </div>

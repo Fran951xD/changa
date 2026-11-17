@@ -22,7 +22,7 @@ export function WorkerCard({ w, trade, area }: { w: SearchResult; trade: string;
       {w.available && <span className="disponible">Disponible ahora</span>}
       <div className="iman-head">
         {w.photoId
-          ? <img className="iman-foto" src={`/i/${w.photoId}?t=1`} alt="" width={68} height={68} loading="lazy" decoding="async" />
+          ? <img className="iman-foto" src={`/api/img/${w.photoId}?t=1`} alt="" width={68} height={68} loading="lazy" decoding="async" />
           : <div className="iman-foto" aria-hidden="true" />}
         <div style={{ minWidth: 0 }}>
           <h3 className="iman-nombre" id={`n-${w.id}`}><a href={`/${w.slug}`}>{w.displayName}</a></h3>

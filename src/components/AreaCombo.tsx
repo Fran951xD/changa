@@ -64,7 +64,7 @@ export function AreaCombo({ label, hint, name, defaultSlug, placeholder, onPick,
       />
       {name && <input type="hidden" name={name} value={slug || (options.length === 1 ? options[0].slug : "")} />}
       {open && options.length > 0 && (
-        <ul id={`${id}-list`} role="listbox" className="combo-list" aria-label={label}>
+        <ul id={`${id}-list`} role="listbox" className="combo-list" aria-label="Sugerencias">
           {options.map((a, i) => (
             <li key={a.slug} id={`${id}-${a.slug}`} role="option" aria-selected={i === active}
               onMouseDown={(e) => { e.preventDefault(); pick(a); }}>

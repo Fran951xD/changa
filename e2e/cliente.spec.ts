@@ -21,7 +21,7 @@ test("desde la portada encuentra un electricista disponible en su barrio y lo co
   await expect(first.getByText("Disponible ahora")).toBeVisible();
 
   const waRequest = page.context().waitForEvent("request", (r) => r.url().startsWith("https://wa.me/"));
-  await first.getByRole("button", { name: /por WhatsApp/ }).click();
+  await first.getByRole("button", { name: /^WhatsApp, escribirle a/ }).click();
   const url = new URL((await waRequest).url());
   expect(url.hostname).toBe("wa.me");
   expect(url.pathname).toMatch(/^\/54911\d{8}$/);

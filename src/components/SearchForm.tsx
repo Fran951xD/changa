@@ -38,7 +38,7 @@ export function SearchForm({ trade, area }: { trade?: string; area?: string }) {
         </button>
         {locError && <p className="error" role="alert">{locError}</p>}
       </div>
-      <button className="btn btn-azul" style={{ alignSelf: "start", marginTop: 30 }}>Buscar</button>
+      <button className="btn btn-azul buscador-btn">Buscar</button>
     </form>
   );
 }

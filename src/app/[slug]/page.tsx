@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps<"/[slug]">): Promis
     title,
     description,
     alternates: { canonical: `/${w.slug}` },
-    openGraph: { title, description, type: "profile", images: w.photoId ? [{ url: `/i/${w.photoId}`, alt: w.displayName }] : undefined },
+    openGraph: { title, description, type: "profile", images: w.photoId ? [{ url: `/api/img/${w.photoId}`, alt: w.displayName }] : undefined },
   };
 }
 
@@ -51,7 +51,7 @@ export default async function Perfil({ params, searchParams }: PageProps<"/[slug
     name: w.displayName,
     description: w.description || undefined,
     url: `${site}/${w.slug}`,
-    image: w.photoId ? `${site}/i/${w.photoId}` : undefined,
+    image: w.photoId ? `${site}/api/img/${w.photoId}` : undefined,
     areaServed: w.zoneMode === "areas"
       ? w.areas.map((a) => ({ "@type": "Place", name: AREA_BY_SLUG.get(a)!.name }))
       : { "@type": "GeoCircle", geoMidpoint: { "@type": "GeoCoordinates", latitude: fuzz(w.baseLat!), longitude: fuzz(w.baseLng!) }, geoRadius: (w.radiusKm ?? 0) * 1000 },
@@ -78,7 +78,7 @@ export default async function Perfil({ params, searchParams }: PageProps<"/[slug
             {available && <span className="disponible">Disponible ahora</span>}
             <div className="iman-head">
               {w.photoId
-                ? <img className="iman-foto" src={`/i/${w.photoId}`} alt={`Foto de ${w.displayName}`} width={120} height={120} style={{ width: 120, height: 120 }} fetchPriority="high" />
+                ? <img className="iman-foto" src={`/api/img/${w.photoId}?t=1`} alt={`Foto de ${w.displayName}`} width={120} height={120} style={{ width: 120, height: 120 }} fetchPriority="high" />
                 : <div className="iman-foto" style={{ width: 120, height: 120 }} aria-hidden="true" />}
               <div style={{ minWidth: 0 }}>
                 <h1 id="nombre" style={{ fontSize: "clamp(1.6rem, 6vw, 2.4rem)", marginBottom: 4 }}>{w.displayName}</h1>
@@ -110,7 +110,7 @@ export default async function Perfil({ params, searchParams }: PageProps<"/[slug
               <h2 id="trabajos">Trabajos realizados</h2>
               <ul className="galeria">
                 {w.photos.map((id, i) => (
-                  <li key={id}><a href={`/i/${id}`}><img src={`/i/${id}?t=1`} alt={`Trabajo ${i + 1} de ${w.displayName}`} width={200} height={200} loading="lazy" decoding="async" /></a></li>
+                  <li key={id}><a href={`/api/img/${id}`}><img src={`/api/img/${id}?t=1`} alt={`Trabajo ${i + 1} de ${w.displayName}`} width={200} height={200} loading="lazy" decoding="async" /></a></li>
                 ))}
               </ul>
             </section>
@@ -135,8 +135,8 @@ export default async function Perfil({ params, searchParams }: PageProps<"/[slug
                     <p style={{ margin: 0 }}>
                       <strong>{r.authorName}</strong> <span className="muted small">· {fmtDate(r.createdAt)}</span>
                     </p>
-                    <p style={{ margin: "2px 0 6px" }} aria-label={`${r.rating} de 5 estrellas`}>
-                      <span className="estrellas"><span className="star" aria-hidden="true">{"★".repeat(r.rating)}</span><span aria-hidden="true" style={{ color: "#c9cec6" }}>{"★".repeat(5 - r.rating)}</span></span>
+                    <p style={{ margin: "2px 0 6px" }}>
+                      <span className="estrellas" role="img" aria-label={`${r.rating} de 5 estrellas`}><span className="star">{"★".repeat(r.rating)}</span><span style={{ color: "#8a919b" }}>{"★".repeat(5 - r.rating)}</span></span>
                     </p>
                     <p style={{ marginBottom: 6 }}>{r.text}</p>
                     {(r.punctual || r.tidy || r.fairPrice) && (

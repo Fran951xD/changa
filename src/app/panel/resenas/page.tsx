@@ -46,7 +46,7 @@ export default async function Resenas({ searchParams }: PageProps<"/panel/resena
           {reviews.map((r) => (
             <li key={r.id} className="panel stack">
               <p style={{ margin: 0 }}>
-                <strong>{r.authorName}</strong> · <span aria-label={`${r.rating} de 5 estrellas`}><span className="star" aria-hidden="true" style={{ color: "#a87300" }}>{"★".repeat(r.rating)}</span></span>
+                <strong>{r.authorName}</strong> · <span role="img" aria-label={`${r.rating} de 5 estrellas`} style={{ color: "#a87300" }}>{"★".repeat(r.rating)}</span>
                 {r.status === "hidden" && <span className="sello" style={{ marginLeft: 8 }}>Oculta por moderación</span>}
               </p>
               <p style={{ margin: 0 }}>{r.text}</p>

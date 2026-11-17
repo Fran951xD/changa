@@ -49,7 +49,7 @@ export default async function Pedidos() {
               <p style={{ whiteSpace: "pre-line", margin: 0 }}>{q.description}</p>
               {q.photoIds.length > 0 && (
                 <ul className="galeria">
-                  {q.photoIds.map((id, i) => <li key={id}><a href={`/i/${id}`}><img src={`/i/${id}?t=1`} alt={`Foto ${i + 1} del pedido`} width={140} height={140} loading="lazy" /></a></li>)}
+                  {q.photoIds.map((id, i) => <li key={id}><a href={`/api/img/${id}`}><img src={`/api/img/${id}?t=1`} alt={`Foto ${i + 1} del pedido`} width={140} height={140} loading="lazy" /></a></li>)}
                 </ul>
               )}
               <div className="row">

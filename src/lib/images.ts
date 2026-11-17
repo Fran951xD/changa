@@ -34,4 +34,4 @@ export async function saveImage(file: File, ownerId: string | null) {
 
 export class UploadError extends Error {}
 
-export const imageUrl = (id: string, thumb = false) => `/i/${id}${thumb ? "?t=1" : ""}`;
+export const imageUrl = (id: string, thumb = false) => `/api/img/${id}${thumb ? "?t=1" : ""}`;

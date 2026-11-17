@@ -25,7 +25,7 @@ export function Photos({ photoId, photos }: { photoId: string | null; photos: st
       <h2 id="fotos">Fotos</h2>
       <div className="row" style={{ alignItems: "flex-start" }}>
         {photoId
-          ? <img src={`/i/${photoId}?t=1`} alt="Tu foto de perfil" width={96} height={96} className="iman-foto" style={{ width: 96, height: 96 }} />
+          ? <img src={`/api/img/${photoId}?t=1`} alt="Tu foto de perfil" width={96} height={96} className="iman-foto" style={{ width: 96, height: 96 }} />
           : <div className="iman-foto" style={{ width: 96, height: 96 }} aria-hidden="true" />}
         <div style={{ flex: 1, minWidth: 220 }}>
           <Upload action={uploadProfilePhoto} label="Foto de perfil" hint="Una foto tuya, de frente y con buena luz, genera más confianza." />
@@ -36,7 +36,7 @@ export function Photos({ photoId, photos }: { photoId: string | null; photos: st
         <ul className="galeria">
           {photos.map((id) => (
             <li key={id}>
-              <img src={`/i/${id}?t=1`} alt="Trabajo realizado" loading="lazy" width={200} height={200} />
+              <img src={`/api/img/${id}?t=1`} alt="Trabajo realizado" loading="lazy" width={200} height={200} />
               <form action={removeWorkPhoto}>
                 <input type="hidden" name="imageId" value={id} />
                 <button className="linkbtn small">Borrar foto</button>
