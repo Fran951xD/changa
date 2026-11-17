@@ -5,10 +5,12 @@ import { TRADES } from "@/data/trades";
 const POPULAR = ["plomeria", "electricidad", "gas", "aires", "cerrajeria", "pintura", "albanileria", "refrigeracion", "mudanzas", "pc"];
 const LIGHT = new Set(["electricidad"]); // imanes claros: texto oscuro para mantener contraste
 
-export default function Home() {
+export default async function Home({ searchParams }: PageProps<"/">) {
   const popular = POPULAR.map((slug) => TRADES.find((t) => t.slug === slug)!);
+  const deleted = (await searchParams).cuenta === "borrada";
   return (
     <>
+      {deleted && <div className="wrap" style={{ paddingTop: 16 }}><p className="aviso aviso-ok" role="status">Borramos tu cuenta y todos tus datos.</p></div>}
       <section className="hero wrap" aria-labelledby="titulo">
         <h1 id="titulo">¿Qué se rompió?</h1>
         <p className="muted" style={{ maxWidth: "48ch" }}>
