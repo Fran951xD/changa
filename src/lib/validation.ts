@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { TRADE_BY_SLUG, PAYMENT_SLUGS } from "@/data/trades";
 import { AREA_BY_SLUG } from "@/data/areas";
+import { AR_BOUNDS } from "./geo";
 
 const optionalInt = (min: number, max: number, msg: string) =>
   z.preprocess((v) => (v === "" || v == null ? null : Number(v)), z.number({ error: msg }).int({ error: msg }).min(min, { error: msg }).max(max, { error: msg }).nullable());
@@ -13,9 +14,9 @@ export const ProfileSchema = z.object({
   description: z.string().trim().max(800, { error: "La descripción es muy larga: hasta 800 letras." }),
   yearsExperience: optionalInt(0, 70, "Los años de experiencia tienen que ser un número entre 0 y 70."),
   zoneMode: z.enum(["areas", "radius"]),
-  areas: z.array(z.string().refine((a) => AREA_BY_SLUG.has(a), { error: "Elegí barrios de la lista." })).max(20, { error: "Podés marcar hasta 20 barrios." }),
-  baseLat: z.preprocess((v) => (v === "" || v == null ? null : Number(v)), z.number().min(-35.5).max(-34).nullable()),
-  baseLng: z.preprocess((v) => (v === "" || v == null ? null : Number(v)), z.number().min(-59.5).max(-57.5).nullable()),
+  areas: z.array(z.string().refine((a) => AREA_BY_SLUG.has(a), { error: "Elegí ciudades o barrios de la lista." })).max(20, { error: "Podés marcar hasta 20 ciudades o barrios." }),
+  baseLat: z.preprocess((v) => (v === "" || v == null ? null : Number(v)), z.number().min(AR_BOUNDS.minLat).max(AR_BOUNDS.maxLat).nullable()),
+  baseLng: z.preprocess((v) => (v === "" || v == null ? null : Number(v)), z.number().min(AR_BOUNDS.minLng).max(AR_BOUNDS.maxLng).nullable()),
   radiusKm: optionalInt(1, 50, "El radio tiene que ser entre 1 y 50 km."),
   days: z.array(z.coerce.number().int().min(0).max(6)),
   from: z.union([time, z.literal("")]),

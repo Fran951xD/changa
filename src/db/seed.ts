@@ -6,7 +6,10 @@ import { sql } from "drizzle-orm";
 import { createDb } from "./index";
 import { runMigrations } from "./migrate";
 import * as s from "./schema";
-import { AREAS, normalizeText } from "../data/areas";
+import { AREAS as ALL_AREAS, normalizeText } from "../data/areas";
+
+// La semilla vive en CABA y el GBA (como pide el proyecto); el resto del país arranca vacío.
+const AREAS = ALL_AREAS.filter((a) => a.region === "CABA" || a.region.startsWith("GBA "));
 import { TRADES, TRADE_BY_SLUG, PAYMENT_METHODS } from "../data/trades";
 import { distanceKm } from "../lib/geo";
 

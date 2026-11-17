@@ -150,7 +150,13 @@ legend { font-weight: 700; margin-bottom: 6px; padding: 0; }
 .hero h1 { font-stretch: 125%; max-width: 14ch; }
 .buscador { display: grid; gap: 12px; margin-top: 16px; }
 .buscador .field { margin: 0; }
-@media (min-width: 760px) { .buscador { grid-template-columns: 1fr 1fr auto; align-items: end; } }
+.buscador .area-pair { display: grid; gap: 12px; }
+@media (min-width: 760px) {
+  /* Alineado arriba: debajo de la ciudad va "Usar mi ubicación" y con "end" desalineaba los campos. */
+  .buscador { grid-template-columns: 1fr 2fr auto; align-items: start; }
+  .buscador .area-pair { grid-template-columns: 1fr 1fr; align-items: start; }
+}
+input:disabled { background: #e2e5df; color: var(--tinta-2); cursor: not-allowed; }
 .imanes { display: flex; flex-wrap: wrap; gap: 12px 10px; list-style: none; padding: 0; margin: 20px 0 0; }
 .imanes a {
   display: inline-block; padding: 10px 16px; border-radius: 999px; border: var(--borde); font-weight: 800;
@@ -162,7 +168,7 @@ legend { font-weight: 700; margin-bottom: 6px; padding: 0; }
 .imanes a.oscuro, .imanes a.oscuro:hover { color: var(--tinta); }
 .seccion { padding-top: 36px; }
 .buscador-btn { align-self: start; }
-@media (min-width: 760px) { .buscador-btn { margin-top: 30px; } }
+@media (min-width: 760px) { .buscador-btn { margin-top: 31.5px; } } /* alto de la etiqueta: queda a la par de los campos */
 
 /* Autocompletado */
 .combo { position: relative; }

@@ -12,12 +12,12 @@ export function SearchForm({ trade, area }: { trade?: string; area?: string }) {
 
   function nearMe(form: HTMLFormElement) {
     const oficio = (form.elements.namedItem("oficio") as HTMLSelectElement).value;
-    if (!navigator.geolocation) return setLocError("Tu navegador no permite usar la ubicación. Escribí tu barrio.");
+    if (!navigator.geolocation) return setLocError("Tu navegador no permite usar la ubicación. Elegí tu provincia y ciudad.");
     setLocating(true);
     setLocError("");
     navigator.geolocation.getCurrentPosition(
       (p) => router.push(`/buscar?oficio=${oficio}&lat=${p.coords.latitude.toFixed(4)}&lng=${p.coords.longitude.toFixed(4)}`),
-      () => { setLocating(false); setLocError("No pudimos usar tu ubicación. Escribí tu barrio."); },
+      () => { setLocating(false); setLocError("No pudimos usar tu ubicación. Elegí tu provincia y ciudad."); },
       { timeout: 10000, maximumAge: 300000 },
     );
   }
@@ -31,7 +31,7 @@ export function SearchForm({ trade, area }: { trade?: string; area?: string }) {
         </select>
       </div>
       <div>
-        <AreaCombo label="Dónde" name="zona" defaultSlug={area} placeholder="Tu barrio o localidad" />
+        <AreaCombo label="Ciudad o barrio" name="zona" defaultSlug={area} />
         <button type="button" className="linkbtn small" style={{ marginTop: -10 }}
           onClick={(e) => nearMe(e.currentTarget.form!)} disabled={locating}>
           {locating ? "Buscando tu ubicación…" : "Usar mi ubicación"}

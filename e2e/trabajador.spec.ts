@@ -22,9 +22,10 @@ test("un trabajador nuevo se registra, verifica su celular y publica su tarjeta"
 
   await page.getByPlaceholder("Buscar: gas, pintor, aire…").fill("electri");
   await page.getByText("Electricidad", { exact: true }).click();
-  await page.getByLabel("Agregá barrios o localidades").fill("caba");
+  await page.getByLabel("Provincia", { exact: true }).selectOption("caba");
+  await page.getByLabel("Agregá ciudades o barrios").fill("caba");
   await page.getByRole("option", { name: /Caballito/ }).click();
-  await page.getByLabel("Agregá barrios o localidades").fill("almag");
+  await page.getByLabel("Agregá ciudades o barrios").fill("almag");
   await page.keyboard.press("Enter");
   await expect(page.getByRole("button", { name: "Quitar Almagro" })).toBeVisible();
   await page.getByLabel("Atiendo urgencias fuera de horario").check();

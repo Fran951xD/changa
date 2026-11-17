@@ -90,7 +90,7 @@ describe("parseSearch", () => {
     expect(searchOrigin(s)).toBeNull();
   });
 
-  it("ubicaciones fuera del GBA no tienen origen", () => {
+  it("ubicaciones fuera de la Argentina no tienen origen", () => {
     expect(searchOrigin(parseSearch({ lat: "40.4", lng: "-3.7" }))).toBeNull();
   });
 

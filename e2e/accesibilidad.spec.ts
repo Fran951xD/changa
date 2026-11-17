@@ -38,11 +38,13 @@ test("la búsqueda se puede usar solo con teclado", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Saltar al contenido" })).toBeFocused();
   await page.getByLabel("Qué necesitás").focus();
   await page.keyboard.press("Tab");
-  await expect(page.getByLabel("Dónde")).toBeFocused();
+  await expect(page.getByLabel("Provincia", { exact: true })).toBeFocused();
+  await page.getByLabel("Provincia", { exact: true }).selectOption("caba"); // elegir con teclado = flechas en el select nativo
+  await expect(page.getByLabel("Ciudad o barrio")).toBeFocused(); // el foco pasa solo a la ciudad
   await page.keyboard.type("cabal");
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Enter");
-  await expect(page.getByLabel("Dónde")).toHaveValue("Caballito");
+  await expect(page.getByLabel("Ciudad o barrio")).toHaveValue("Caballito");
   await page.getByRole("button", { name: "Buscar" }).focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/zona=caballito/);

@@ -18,7 +18,7 @@ export async function Results({ s, headingLevel = 1 }: { s: Search; headingLevel
       <div className="wrap">
         <div className="page-head">
           <H>Buscar {trade.plural.replace(/-/g, " ")}</H>
-          <p className="muted">Decinos tu barrio o usá tu ubicación para ver quién trabaja cerca.</p>
+          <p className="muted">Elegí tu provincia y tu ciudad o barrio, o usá tu ubicación, para ver quién trabaja cerca.</p>
         </div>
         <div className="panel"><SearchForm trade={s.oficio} /></div>
       </div>
@@ -96,7 +96,7 @@ export async function Results({ s, headingLevel = 1 }: { s: Search; headingLevel
           {activeFilters ? (
             <p>Probá sacando algún filtro. <Link href={searchHref({ oficio: s.oficio, zona: s.zona, lat: s.lat, lng: s.lng })}>Ver todos sin filtros</Link>.</p>
           ) : (
-            <p>Probá con un barrio vecino o buscá en otra zona. Changa está creciendo: si conocés a alguien de oficio, contale que puede publicar su tarjeta gratis.</p>
+            <p>Probá con una zona vecina o usá tu ubicación. Changa está creciendo: si conocés a alguien de oficio, contale que puede publicar su tarjeta gratis.</p>
           )}
         </div>
       ) : s.vista === "mapa" ? (

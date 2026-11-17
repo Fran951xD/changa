@@ -10,7 +10,8 @@ test("desde la portada encuentra un electricista disponible en su barrio y lo co
   const start = Date.now();
   await page.goto("/");
   await page.getByLabel("Qué necesitás").selectOption("electricidad");
-  await page.getByLabel("Dónde").fill("palerm");
+  await page.getByLabel("Provincia", { exact: true }).selectOption("caba");
+  await page.getByLabel("Ciudad o barrio").fill("palerm");
   await page.getByRole("option", { name: /Palermo/ }).click();
   await page.getByRole("button", { name: "Buscar" }).click();
 
@@ -46,18 +47,37 @@ test("la vista de mapa carga y los filtros sin resultados explican qué hacer", 
 
 test("escribir el barrio completo sin elegirlo de la lista igual busca ahí (Flores, aunque exista Floresta)", async ({ page }) => {
   await page.goto("/");
-  await page.getByLabel("Dónde").fill("Flores");
+  await page.getByLabel("Provincia", { exact: true }).selectOption("caba");
+  await page.getByLabel("Ciudad o barrio").fill("Flores");
   await page.getByRole("heading", { level: 1 }).click(); // cierra la lista, como haría una persona
   await page.getByRole("button", { name: "Buscar" }).click();
   await expect(page).toHaveURL(/zona=flores(&|$)/);
 
   // Algo que no es un barrio: el navegador frena el envío en vez de perder lo escrito.
   await page.goto("/");
-  await page.getByLabel("Dónde").fill("San");
+  await page.getByLabel("Provincia", { exact: true }).selectOption("caba");
+  await page.getByLabel("Ciudad o barrio").fill("San");
   await page.getByRole("heading", { level: 1 }).click();
   await page.getByRole("button", { name: "Buscar" }).click();
   await expect(page).toHaveURL(/\/$/);
-  expect(await page.getByLabel("Dónde").evaluate((el: HTMLInputElement) => el.validationMessage)).toBe("Elegí tu barrio de la lista.");
+  expect(await page.getByLabel("Ciudad o barrio").evaluate((el: HTMLInputElement) => el.validationMessage)).toBe("Elegí tu ciudad o barrio de la lista.");
+});
+
+test("primero la provincia: las ciudades se filtran a esa provincia y se puede buscar en todo el país", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByLabel("Ciudad o barrio")).toBeDisabled();
+  await page.getByLabel("Provincia", { exact: true }).selectOption("mendoza");
+  await page.getByLabel("Ciudad o barrio").fill("san");
+  const options = page.getByRole("listbox", { name: "Sugerencias" }).getByRole("option");
+  await expect(options.first()).toBeVisible();
+  const names = await options.allTextContents();
+  expect(names).toEqual(expect.arrayContaining(["San Rafael", "San Martín"]));
+  expect(names.join()).not.toMatch(/San Telmo|San Isidro|San Juan/); // nada de otras provincias
+  await page.getByRole("option", { name: "San Rafael" }).click();
+  await page.getByRole("button", { name: "Buscar" }).click();
+  await expect(page).toHaveURL(/zona=san-rafael/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("cerca de San Rafael");
+  await expect(page.getByText(/Probá con una zona vecina/)).toBeVisible(); // la semilla solo tiene CABA y GBA
 });
 
 test("al sacar los filtros, los chips quedan destildados", async ({ page }) => {

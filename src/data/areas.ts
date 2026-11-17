@@ -1,6 +1,8 @@
-// Barrios de CABA y localidades del Gran Buenos Aires con su centro aproximado.
-// shortcut: lista fija sin geocodificador externo; sumar provincias = sumar filas acá (o pasar a una API de geocoding).
-export type Area = { slug: string; name: string; region: string; lat: number; lng: number };
+// Barrios de CABA, localidades del GBA y ciudades del resto del país (provinces.ts), con su centro aproximado.
+// shortcut: lista fija sin geocodificador externo; para todas las localidades, pasar a la API Georef del Estado.
+import { CITIES, PROVINCES } from "./provinces";
+
+export type Area = { slug: string; name: string; region: string; province: string; lat: number; lng: number };
 
 const caba: [string, string, number, number][] = [
   ["agronomia", "Agronomía", -34.5925, -58.4925],
@@ -90,24 +92,41 @@ const gba: [string, string, string, number, number][] = [
   ["ezeiza", "Ezeiza", "Zona Sur", -34.8541, -58.5235],
 ];
 
-export const AREAS: Area[] = [
-  ...caba.map(([slug, name, lat, lng]) => ({ slug, name, region: "CABA", lat, lng })),
-  ...gba.map(([slug, name, region, lat, lng]) => ({ slug, name, region, lat, lng })),
-];
-
-export const AREA_BY_SLUG = new Map(AREAS.map((a) => [a.slug, a]));
-
-/** El barrio más cercano a un punto (para decir "hasta 10 km de Flores" sin mostrar la dirección). */
-export function nearestArea(lat: number, lng: number) {
-  let best = AREAS[0], bestD = Infinity;
-  for (const a of AREAS) {
-    const d = (a.lat - lat) ** 2 + ((a.lng - lng) * 0.82) ** 2; // 0,82 ≈ cos(34,6°): alcanza para comparar
-    if (d < bestD) { best = a; bestD = d; }
-  }
-  return best;
-}
-
 /** Para el autocompletado: ignora tildes y mayúsculas. */
 export function normalizeText(s: string) {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+}
+const toSlug = (s: string) => normalizeText(s).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+function buildAreas(): Area[] {
+  const list: Area[] = [
+    ...caba.map(([slug, name, lat, lng]) => ({ slug, name, region: "CABA", province: "caba", lat, lng })),
+    ...gba.map(([slug, name, region, lat, lng]) => ({ slug, name, region: `GBA ${region}`, province: "buenos-aires", lat, lng })),
+  ];
+  const used = new Set(list.map((a) => a.slug));
+  for (const p of PROVINCES) {
+    for (const [name, lat, lng] of CITIES[p.slug] ?? []) {
+      // Los slugs existentes no cambian (son URLs y datos guardados); un nombre repetido lleva la provincia: "merlo-san-luis".
+      let slug = toSlug(name);
+      if (used.has(slug)) slug = `${slug}-${p.slug}`;
+      used.add(slug);
+      list.push({ slug, name, region: p.name, province: p.slug, lat, lng });
+    }
+  }
+  return list;
+}
+
+export const AREAS: Area[] = buildAreas();
+export const AREA_BY_SLUG = new Map(AREAS.map((a) => [a.slug, a]));
+export const areasOf = (province: string) => AREAS.filter((a) => a.province === province);
+
+/** El barrio o ciudad más cercano a un punto (para decir "hasta 10 km de Flores" sin mostrar la dirección). */
+export function nearestArea(lat: number, lng: number) {
+  const k = Math.cos((lat * Math.PI) / 180); // corrige la longitud según la latitud (Jujuy ≠ Ushuaia)
+  let best = AREAS[0], bestD = Infinity;
+  for (const a of AREAS) {
+    const d = (a.lat - lat) ** 2 + ((a.lng - lng) * k) ** 2;
+    if (d < bestD) { best = a; bestD = d; }
+  }
+  return best;
 }

@@ -29,12 +29,12 @@ export default async function Presupuesto({ searchParams }: PageProps<"/presupue
               {TRADES.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
             </select>
           </div>
-          <AreaCombo label="Tu barrio" name="zona" placeholder="Ej.: Caballito" />
+          <AreaCombo label="Tu ciudad o barrio" name="zona" />
           <button className="btn btn-azul">Seguir</button>
         </form>
       ) : rows.length === 0 ? (
         <div className="panel" role="status">
-          <p>Todavía no hay {trade.plural.replace(/-/g, " ")} cerca de {area.name}. Probá con un barrio vecino.</p>
+          <p>Todavía no hay {trade.plural.replace(/-/g, " ")} cerca de {area.name}. Probá con una zona vecina.</p>
           <a className="btn" href={`/presupuesto?oficio=${s.oficio}`}>Elegir otro barrio</a>
         </div>
       ) : (

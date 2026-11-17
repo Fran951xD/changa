@@ -10,7 +10,8 @@ export function distanceKm(lat1: number, lng1: number, lat2: number, lng2: numbe
 /** Redondea a ~1 km para no publicar el domicilio exacto del trabajador. */
 export const fuzz = (n: number) => Math.round(n * 100) / 100;
 
-/** El GBA cabe en este recuadro; fuera de él la búsqueda no tiene trabajadores. */
+/** Recuadro de la Argentina continental + Tierra del Fuego; fuera de él la búsqueda no tiene trabajadores. */
+export const AR_BOUNDS = { minLat: -55.5, maxLat: -21.5, minLng: -74, maxLng: -53.5 };
 export function isInServiceArea(lat: number, lng: number) {
-  return lat > -35.2 && lat < -34.2 && lng > -59.3 && lng < -57.9;
+  return lat > AR_BOUNDS.minLat && lat < AR_BOUNDS.maxLat && lng > AR_BOUNDS.minLng && lng < AR_BOUNDS.maxLng;
 }

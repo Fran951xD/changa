@@ -42,6 +42,7 @@ La idea viene del imán de heladera con el número del plomero y la tarjeta que 
 | **Límites de uso en Postgres** | Ventana fija por IP hasheada: funciona igual con una o cien instancias serverless, sin Redis. Además hay un límite general en el proxy, alto a propósito porque muchas líneas móviles comparten IP (CGNAT). |
 | **Imágenes** | `sharp` endereza, borra metadatos (incluido el GPS), achica a WebP de 1200 px + miniatura de 400 px. Se sirven con caché inmutable. Se guardan en Postgres (unos 60 KB cada una): entra en el plan gratis y se pasa a R2/Blob cambiando un archivo. |
 | **Mapa con Leaflet + OpenStreetMap** | Se carga solo al abrir la vista de mapa. Las ubicaciones se redondean a ~1 km. |
+| **Todo el país, primero la provincia** | Las 24 jurisdicciones con sus ciudades principales (y los barrios de CABA y localidades del GBA). Se elige la provincia y la ciudad se autocompleta solo dentro de ella. Lista curada sin API externa (`src/data/provinces.ts`); para todas las localidades se puede sumar Georef. La semilla sigue en CABA y GBA. |
 | **Turnstile** en ingreso, presupuestos y denuncias | Se activa al configurar las claves; sin ellas (desarrollo) no aparece. |
 | **Nada de "pagar para aparecer"** | Orden por disponibilidad, cercanía o calificación (promedio bayesiano, para que 1 reseña de 5 no le gane a 40 de 4,8). |
 

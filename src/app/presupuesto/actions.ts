@@ -15,7 +15,7 @@ export type QuoteState = { error?: string; fieldErrors?: Record<string, string> 
 
 const QuoteSchema = z.object({
   trade: z.string().refine((t) => TRADE_BY_SLUG.has(t), { error: "Elegí un oficio." }),
-  area: z.string().refine((a) => AREA_BY_SLUG.has(a), { error: "Elegí tu barrio de la lista." }),
+  area: z.string().refine((a) => AREA_BY_SLUG.has(a), { error: "Elegí tu ciudad o barrio de la lista." }),
   description: z.string().trim().min(15, { error: "Contá un poco más del trabajo: al menos 15 letras." }).max(1500, { error: "Hasta 1500 letras." }),
   name: z.string().trim().min(2, { error: "Escribí tu nombre." }).max(60),
   phone: z.string().transform((p, ctx) => normalizeArPhone(p) ?? (ctx.addIssue({ code: "custom", message: "Revisá el celular: escribilo con código de área, por ejemplo 11 2345-6789." }), z.NEVER)),

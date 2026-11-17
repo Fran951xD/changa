@@ -33,10 +33,10 @@ export function ProfileForm({ initial }: { initial: ProfileInitial }) {
 
   function useMyLocation() {
     setLocError("");
-    if (!navigator.geolocation) return setLocError("Tu navegador no permite usar la ubicación. Elegí un barrio.");
+    if (!navigator.geolocation) return setLocError("Tu navegador no permite usar la ubicación. Elegí una ciudad o barrio.");
     navigator.geolocation.getCurrentPosition(
       (p) => setBase({ lat: p.coords.latitude, lng: p.coords.longitude, label: "tu ubicación actual" }),
-      () => setLocError("No pudimos usar tu ubicación. Elegí un barrio en su lugar."),
+      () => setLocError("No pudimos usar tu ubicación. Elegí una ciudad o barrio en su lugar."),
       { timeout: 10000 },
     );
   }
@@ -85,16 +85,16 @@ export function ProfileForm({ initial }: { initial: ProfileInitial }) {
         <fieldset>
           <legend>¿Cómo querés marcar tu zona?</legend>
           <div className="row">
-            <label className="chip"><input type="radio" name="zoneMode" value="areas" checked={zoneMode === "areas"} onChange={() => setZoneMode("areas")} />Por barrios</label>
+            <label className="chip"><input type="radio" name="zoneMode" value="areas" checked={zoneMode === "areas"} onChange={() => setZoneMode("areas")} />Por ciudades o barrios</label>
             <label className="chip"><input type="radio" name="zoneMode" value="radius" checked={zoneMode === "radius"} onChange={() => setZoneMode("radius")} />Por distancia</label>
           </div>
         </fieldset>
         {zoneMode === "areas" ? (
           <div>
-            <AreaCombo label="Agregá barrios o localidades" hint="Escribí y elegí de la lista. Podés sumar varios." clearOnPick
+            <AreaCombo label="Agregá ciudades o barrios" hint="Elegí la provincia, escribí y elegí de la lista. Podés sumar varios, incluso de otra provincia." clearOnPick
               onPick={(a) => setAreas((cur) => (cur.includes(a.slug) ? cur : [...cur, a.slug]))} invalid={!!fe.areas} />
             {areas.length > 0 ? (
-              <ul className="chips" aria-label="Barrios elegidos">
+              <ul className="chips" aria-label="Ciudades y barrios elegidos">
                 {areas.map((a) => (
                   <li key={a}>
                     <input type="hidden" name="areas" value={a} />
@@ -105,7 +105,7 @@ export function ProfileForm({ initial }: { initial: ProfileInitial }) {
                   </li>
                 ))}
               </ul>
-            ) : <p className="muted small">Todavía no elegiste ningún barrio.</p>}
+            ) : <p className="muted small">Todavía no elegiste ninguna ciudad o barrio.</p>}
             <FieldError id="e-areas" msg={fe.areas} />
           </div>
         ) : (
@@ -113,9 +113,9 @@ export function ProfileForm({ initial }: { initial: ProfileInitial }) {
             <p className="label">Desde dónde salís</p>
             <div className="row" style={{ marginBottom: 12 }}>
               <button type="button" className="btn btn-chico" onClick={useMyLocation}>Usar mi ubicación</button>
-              <span className="muted small">o elegí un barrio:</span>
+              <span className="muted small">o elegí una ciudad o barrio:</span>
             </div>
-            <AreaCombo label="Barrio de salida" onPick={(a) => setBase({ lat: a.lat, lng: a.lng, label: a.name })} />
+            <AreaCombo label="Ciudad o barrio de salida" onPick={(a) => setBase({ lat: a.lat, lng: a.lng, label: a.name })} />
             {locError && <p className="error">{locError}</p>}
             {base && <p className="small" role="status">Punto marcado: {base.label}. En tu perfil mostramos solo la zona aproximada, nunca tu dirección.</p>}
             <input type="hidden" name="baseLat" value={base?.lat ?? ""} />
