@@ -97,6 +97,16 @@ export const AREAS: Area[] = [
 
 export const AREA_BY_SLUG = new Map(AREAS.map((a) => [a.slug, a]));
 
+/** El barrio más cercano a un punto (para decir "hasta 10 km de Flores" sin mostrar la dirección). */
+export function nearestArea(lat: number, lng: number) {
+  let best = AREAS[0], bestD = Infinity;
+  for (const a of AREAS) {
+    const d = (a.lat - lat) ** 2 + ((a.lng - lng) * 0.82) ** 2; // 0,82 ≈ cos(34,6°): alcanza para comparar
+    if (d < bestD) { best = a; bestD = d; }
+  }
+  return best;
+}
+
 /** Para el autocompletado: ignora tildes y mayúsculas. */
 export function normalizeText(s: string) {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();

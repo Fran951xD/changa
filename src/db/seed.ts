@@ -121,8 +121,8 @@ async function main() {
 
     const home = i === 0 ? AREAS.find((a) => a.slug === "palermo")! : AREAS[Math.floor(rand() ** 1.3 * AREAS.length)];
     const radiusMode = i !== 0 && chance(0.2);
-    const near = AREAS.filter((a) => a.slug !== home.slug && distanceKm(home.lat, home.lng, a.lat, a.lng) < 5.5)
-      .sort(() => rand() - 0.5).slice(0, int(1, 5));
+    const near = AREAS.filter((a) => a.slug !== home.slug && distanceKm(home.lat, home.lng, a.lat, a.lng) < 6.5)
+      .sort(() => rand() - 0.5).slice(0, int(2, 8));
     const areas = [home, ...near];
 
     const user = (await db.insert(s.users).values({ email: i === 0 ? "juan@changa.test" : `trabajador${i}@changa.test`, name: `${first} ${last}` }).returning())[0];

@@ -113,15 +113,16 @@ legend { font-weight: 700; margin-bottom: 6px; padding: 0; }
 .chip { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px; border: var(--borde); border-radius: 999px; background: var(--papel); font-weight: 600; cursor: pointer; font-size: .95rem; color: var(--tinta); text-decoration: none; margin: 0; }
 .chip:hover { color: var(--tinta); }
 .chip[aria-pressed="true"], .chip:has(input:checked) { background: var(--tinta); color: #fff; }
-.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .chip:has(input:focus-visible) { outline: 3px solid var(--azul); outline-offset: 2px; }
 
 /* ---------- La tarjeta-imán del trabajador ---------- */
 .cards { display: grid; gap: 20px 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); list-style: none; padding: 0; margin: 0; }
 .iman {
   position: relative; background: var(--papel); border: var(--borde); border-radius: var(--radio);
-  box-shadow: var(--sombra); padding: 16px 16px 16px 26px; display: flex; flex-direction: column; gap: 12px; height: 100%;
+  box-shadow: var(--sombra); padding: 16px 16px 16px 26px; display: flex; flex-direction: column; gap: 12px;
 }
+.cards .iman { height: 100%; }
 .iman::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 12px; background: var(--oficio, var(--azul)); border-radius: 12px 0 0 12px; border-right: var(--borde); }
 .iman-head { display: flex; gap: 12px; align-items: flex-start; }
 .iman-foto { width: 68px; height: 68px; border-radius: 12px; border: var(--borde); object-fit: cover; flex: none; background: var(--esmalte); }
@@ -178,7 +179,7 @@ details.mas-filtros summary { cursor: pointer; font-weight: 700; min-height: 44p
 
 /* ---------- Perfil público ---------- */
 .perfil-grid { display: grid; gap: 20px; }
-@media (min-width: 900px) { .perfil-grid { grid-template-columns: 1.6fr 1fr; align-items: start; } .perfil-side { position: sticky; top: 16px; } }
+@media (min-width: 900px) { .perfil-grid { grid-template-columns: 1.6fr 1fr; align-items: start; } .perfil-side { position: sticky; top: 16px; } .solo-celu { display: none; } }
 .galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0; }
 .galeria img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; border: var(--borde); }
 .resena { border-top: 1.5px dashed var(--tinta-2); padding: 16px 0; }

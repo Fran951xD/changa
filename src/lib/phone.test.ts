@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { formatArPhone, normalizeArPhone, whatsappLink } from "./phone";
+import { contactMessage } from "./contact";
+
+describe("contactMessage", () => {
+  it("arma el mensaje prearmado con oficio y barrio", () => {
+    expect(contactMessage("Juan Pérez", "plomeria", "palermo")).toBe("Hola Juan, te encontré en Changa. Necesito un plomero en Palermo para ");
+    expect(contactMessage("Rosa", "gas")).toBe("Hola Rosa, te encontré en Changa. Necesito un gasista para ");
+    expect(contactMessage("Rosa", "inventado", "marte")).toBe("Hola Rosa, te encontré en Changa. Te quería consultar por ");
+  });
+});
 
 describe("normalizeArPhone", () => {
   it.each([
