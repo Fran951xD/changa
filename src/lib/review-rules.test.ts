@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { reviewEligibility } from "./review-rules";
+import { publicName, reviewEligibility } from "./review-rules";
+
+describe("publicName", () => {
+  it("muestra nombre e inicial del apellido", () => {
+    expect(publicName("Ana Carolina pérez")).toBe("Ana P.");
+    expect(publicName("  Rosa  ")).toBe("Rosa");
+  });
+});
 
 const now = new Date("2026-06-15T12:00:00Z");
 const daysAgo = (n: number) => new Date(now.getTime() - n * 86_400_000);

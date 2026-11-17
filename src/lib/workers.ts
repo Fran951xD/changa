@@ -6,7 +6,7 @@ import { AREA_BY_SLUG, normalizeText } from "@/data/areas";
 
 export const RESERVED_SLUGS = new Set([
   "buscar", "ingresar", "panel", "admin", "auth", "salir", "privacidad", "trabajadores", "api", "i",
-  "sitemap", "robots", "presupuesto", "terminos", "ayuda", "changa", "contactar",
+  "sitemap", "robots", "presupuesto", "terminos", "ayuda", "changa", "contactar", "denunciar", "visita",
 ]);
 
 export function slugify(s: string) {

@@ -2,6 +2,12 @@ export const REVIEW_MIN_DAYS = 1;
 export const REVIEW_MAX_DAYS = 60;
 const DAY = 86_400_000;
 
+/** "Ana Carolina Pérez" → "Ana P.": en público va el nombre con la inicial del apellido. */
+export function publicName(full: string) {
+  const parts = full.trim().split(/\s+/).filter(Boolean);
+  return parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.` : parts[0] ?? "";
+}
+
 export type ReviewEligibility =
   | { ok: true }
   | { ok: false; reason: "own-profile" | "already-reviewed" | "no-contact" | "too-soon" | "too-late"; availableFrom?: Date };
