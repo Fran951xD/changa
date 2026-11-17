@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import sharp from "sharp";
 import { login } from "./helpers";
 
 test("un trabajador nuevo se registra, verifica su celular y publica su tarjeta", async ({ page }) => {
@@ -38,4 +39,12 @@ test("un trabajador nuevo se registra, verifica su celular y publica su tarjeta"
   await expect(page.getByText("Matrícula informada").first()).toBeVisible();
   // El teléfono no está en el HTML del perfil.
   expect(await page.content()).not.toContain("5491143210000");
+
+  // Foto de varios MB, como sale de un celular: se achica en el navegador y se sube.
+  const big = await sharp({ create: { width: 3200, height: 2400, channels: 3, background: "#808080", noise: { type: "gaussian", mean: 128, sigma: 40 } } }).jpeg({ quality: 95 }).toBuffer();
+  expect(big.length).toBeGreaterThan(4.5 * 1024 * 1024);
+  await page.goto("/panel/perfil");
+  await page.getByLabel(/Foto de perfil/).setInputFiles({ name: "foto.jpg", mimeType: "image/jpeg", buffer: big });
+  await expect(page.getByText("Foto actualizada.")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("img", { name: "Tu foto de perfil" })).toBeVisible();
 });

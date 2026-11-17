@@ -50,4 +50,4 @@ export function safeNext(next: unknown, fallback = "/panel") {
   return typeof next === "string" && /^\/(?![/\\])/.test(next) ? next : fallback;
 }
 
-export const isDemo = () => process.env.DEMO_MODE === "1" || process.env.NODE_ENV !== "production";
+export const isDemo = () => process.env.DEMO_MODE?.trim() === "1" || process.env.NODE_ENV !== "production";

@@ -1,6 +1,7 @@
 "use client";
 import { useActionState, useState, startTransition } from "react";
 import { createQuote, type QuoteState } from "./actions";
+import { shrinkImage } from "@/lib/shrink-image";
 
 type Candidate = { id: string; name: string; rating: string; available: boolean; distance: string };
 
@@ -12,9 +13,12 @@ export function QuoteForm({ trade, area, areaName, tradeName, candidates, turnst
   const fe = state.fieldErrors ?? {};
 
   return (
-    <form noValidate className="stack" onSubmit={(e) => {
+    <form noValidate className="stack" onSubmit={async (e) => {
       e.preventDefault();
       const fd = new FormData(e.currentTarget);
+      const photos = fd.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0).slice(0, 3);
+      fd.delete("photos");
+      for (const p of await Promise.all(photos.map((p) => shrinkImage(p)))) fd.append("photos", p);
       startTransition(() => action(fd));
     }}>
       <input type="hidden" name="trade" value={trade} />

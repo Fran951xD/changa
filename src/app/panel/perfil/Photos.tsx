@@ -1,11 +1,20 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, startTransition } from "react";
 import { addWorkPhoto, removeWorkPhoto, uploadProfilePhoto, type FormState } from "../actions";
+import { shrinkImage } from "@/lib/shrink-image";
 
 function Upload({ action, label, hint }: { action: (s: FormState, f: FormData) => Promise<FormState>; label: string; hint: string }) {
   const [state, run, pending] = useActionState<FormState, FormData>(action, {});
   return (
-    <form action={run}>
+    <form action={run} onSubmit={async (e) => {
+      e.preventDefault();
+      const input = e.currentTarget.elements.namedItem("photo") as HTMLInputElement;
+      const file = input.files?.[0];
+      if (!file) return;
+      const fd = new FormData();
+      fd.set("photo", await shrinkImage(file));
+      startTransition(() => run(fd));
+    }}>
       <div className="field">
         <label htmlFor={label}>{label}<span className="hint">{hint}</span></label>
         <input id={label} name="photo" type="file" accept="image/*" required
