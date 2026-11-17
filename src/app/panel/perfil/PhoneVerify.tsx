@@ -9,7 +9,7 @@ export function PhoneVerify({ current, pending }: { current: string | null; pend
 
   return (
     <section className="panel stack" aria-labelledby="tel" style={{ marginTop: 20 }}>
-      <h2 id="tel">Tu celular</h2>
+      <h2 id="tel">1. Tu celular</h2>
       <p className="muted">Es el número al que te van a escribir por WhatsApp. No lo mostramos en la página: aparece solo cuando un cliente toca “Contactar”.</p>
       {current && <p className="aviso aviso-ok" role="status">Verificado: <strong>{current}</strong></p>}
       {checked.ok && <p className="aviso aviso-ok" role="status">{checked.ok}</p>}

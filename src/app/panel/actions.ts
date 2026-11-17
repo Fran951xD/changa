@@ -10,6 +10,7 @@ import { getWorkerForUser, missingForPublish, uniqueSlug } from "@/lib/workers";
 import { AREA_BY_SLUG } from "@/data/areas";
 import { TRADE_BY_SLUG } from "@/data/trades";
 import { normalizeArPhone } from "@/lib/phone";
+import { profileSlugBase } from "@/lib/slug";
 import { rateLimit, sha256 } from "@/lib/security";
 import { sendSmsCode } from "@/lib/messaging";
 import { saveImage, UploadError } from "@/lib/images";
@@ -30,6 +31,7 @@ export async function createWorkerProfile() {
     const name = user.name ?? "";
     await db.insert(schema.workers).values({ userId: user.id, displayName: name, slug: await uniqueSlug(name || user.email.split("@")[0]) });
   }
+  revalidatePath("/panel", "layout"); // que aparezcan las pestañas del panel sin recargar
   redirect("/panel/perfil");
 }
 
@@ -48,7 +50,7 @@ export async function saveProfile(_: FormState, form: FormData): Promise<FormSta
   const firstArea = AREA_BY_SLUG.get(p.areas[0]);
   // El slug se arma una sola vez con nombre + oficio ("juan-perez-plomero") y después no cambia solo.
   const slug = worker.status === "draft" && p.trades[0]
-    ? await uniqueSlug(`${p.displayName} ${TRADE_BY_SLUG.get(p.trades[0])!.person}`, worker.id)
+    ? await uniqueSlug(profileSlugBase(p.displayName, TRADE_BY_SLUG.get(p.trades[0])!.person), worker.id)
     : worker.slug;
 
   await db.transaction(async (tx) => {

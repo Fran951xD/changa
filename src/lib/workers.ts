@@ -2,16 +2,14 @@ import "server-only";
 import { asc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { TRADE_BY_SLUG } from "@/data/trades";
-import { AREA_BY_SLUG, normalizeText } from "@/data/areas";
+import { AREA_BY_SLUG } from "@/data/areas";
+import { slugify } from "./slug";
 
 export const RESERVED_SLUGS = new Set([
   "buscar", "ingresar", "panel", "admin", "auth", "salir", "privacidad", "trabajadores", "api", "i",
   "sitemap", "robots", "presupuesto", "terminos", "ayuda", "changa", "contactar", "denunciar", "visita",
 ]);
 
-export function slugify(s: string) {
-  return normalizeText(s).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
-}
 
 export async function uniqueSlug(base: string, ignoreWorkerId?: string) {
   const root = slugify(base) || "trabajador";

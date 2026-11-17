@@ -1,5 +1,5 @@
 "use client";
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AREAS, AREA_BY_SLUG, normalizeText, type Area } from "@/data/areas";
 
 type Props = {
@@ -30,6 +30,16 @@ export function AreaCombo({ label, hint, name, defaultSlug, placeholder, onPick,
     return [...starts, ...contains].slice(0, 8);
   }, [text]);
 
+  // Lo que se envía: lo elegido de la lista, o lo escrito si coincide exacto ("Flores" aunque exista "Floresta"),
+  // o la única sugerencia. Si no se puede resolver, el navegador frena el envío con un aviso en vez de perder el barrio.
+  const exact = AREAS.find((a) => normalizeText(a.name) === normalizeText(text));
+  const resolved = slug || exact?.slug || (options.length === 1 ? options[0].slug : "");
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!name) return;
+    inputRef.current?.setCustomValidity(text.trim() && !resolved ? "Elegí tu barrio de la lista." : "");
+  }, [name, text, resolved]);
+
   function pick(a: Area) {
     setSlug(a.slug);
     setText(clearOnPick ? "" : a.name);
@@ -41,6 +51,7 @@ export function AreaCombo({ label, hint, name, defaultSlug, placeholder, onPick,
     <div className="field combo">
       <label htmlFor={id}>{label}{hint && <span className="hint">{hint}</span>}</label>
       <input
+        ref={inputRef}
         id={id}
         type="text"
         role="combobox"
@@ -62,7 +73,7 @@ export function AreaCombo({ label, hint, name, defaultSlug, placeholder, onPick,
           else if (e.key === "Escape") setOpen(false);
         }}
       />
-      {name && <input type="hidden" name={name} value={slug || (options.length === 1 ? options[0].slug : "")} />}
+      {name && <input type="hidden" name={name} value={resolved} />}
       {open && options.length > 0 && (
         <ul id={`${id}-list`} role="listbox" className="combo-list" aria-label="Sugerencias">
           {options.map((a, i) => (

@@ -39,7 +39,8 @@ export async function Results({ s, headingLevel = 1 }: { s: Search; headingLevel
         </details>
       </div>
 
-      <AutoSubmitForm action="/buscar" method="get" aria-label="Filtros">
+      {/* key: al navegar (por ej. "Ver todos sin filtros") React reusaría el form y dejaría chips tildados de antes. */}
+      <AutoSubmitForm key={searchHref(s)} action="/buscar" method="get" aria-label="Filtros">
         <input type="hidden" name="oficio" value={s.oficio} />
         {s.zona ? <input type="hidden" name="zona" value={s.zona} /> : (
           <><input type="hidden" name="lat" value={s.lat} /><input type="hidden" name="lng" value={s.lng} /></>
@@ -49,7 +50,7 @@ export async function Results({ s, headingLevel = 1 }: { s: Search; headingLevel
           <label className="chip"><input type="checkbox" name="ahora" value="1" defaultChecked={s.ahora} />Disponible ahora</label>
           <label className="chip"><input type="checkbox" name="urgencias" value="1" defaultChecked={s.urgencias} />Urgencias</label>
           <label className="chip"><input type="checkbox" name="matricula" value="1" defaultChecked={s.matricula} />Con matrícula</label>
-          <details className="mas-filtros">
+          <details className="mas-filtros" open={!!(s.min || s.pago.length) || undefined}>
             <summary>Más filtros{s.min || s.pago.length ? " (activos)" : ""}</summary>
             <div className="panel stack" style={{ marginTop: 8 }}>
               <div className="field">

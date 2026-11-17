@@ -191,7 +191,8 @@ details.mas-filtros summary { cursor: pointer; font-weight: 700; min-height: 44p
 /* ---------- Panel del trabajador ---------- */
 .stats { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 .stat strong { display: block; font-size: 2rem; font-stretch: 120%; line-height: 1; }
-.tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: var(--borde); margin-bottom: 20px; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; border-bottom: var(--borde); margin-bottom: 20px; }
+.tabs::-webkit-scrollbar { display: none; }
 .tabs a { padding: 10px 14px; font-weight: 700; color: var(--tinta); text-decoration: none; border-radius: 10px 10px 0 0; white-space: nowrap; }
 .tabs a[aria-current="page"] { background: var(--tinta); color: #fff; }
 

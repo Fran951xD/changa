@@ -43,3 +43,26 @@ test("la vista de mapa carga y los filtros sin resultados explican qué hacer", 
   await expect(page.getByRole("heading", { level: 1 })).toContainText("plomeros cerca de Palermo");
   await expect(page.locator(".leaflet-container")).toBeVisible();
 });
+
+test("escribir el barrio completo sin elegirlo de la lista igual busca ahí (Flores, aunque exista Floresta)", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Dónde").fill("Flores");
+  await page.getByRole("heading", { level: 1 }).click(); // cierra la lista, como haría una persona
+  await page.getByRole("button", { name: "Buscar" }).click();
+  await expect(page).toHaveURL(/zona=flores(&|$)/);
+
+  // Algo que no es un barrio: el navegador frena el envío en vez de perder lo escrito.
+  await page.goto("/");
+  await page.getByLabel("Dónde").fill("San");
+  await page.getByRole("heading", { level: 1 }).click();
+  await page.getByRole("button", { name: "Buscar" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  expect(await page.getByLabel("Dónde").evaluate((el: HTMLInputElement) => el.validationMessage)).toBe("Elegí tu barrio de la lista.");
+});
+
+test("al sacar los filtros, los chips quedan destildados", async ({ page }) => {
+  await page.goto("/buscar?oficio=gas&zona=quilmes&min=5&matricula=1&urgencias=1&ahora=1");
+  await page.getByRole("link", { name: "Ver todos sin filtros" }).click();
+  await expect(page).toHaveURL(/\/buscar\?oficio=gas&zona=quilmes$/);
+  for (const name of ["Disponible ahora", "Urgencias", "Con matrícula"]) await expect(page.getByLabel(name)).not.toBeChecked();
+});

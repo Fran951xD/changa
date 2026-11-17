@@ -17,6 +17,7 @@ export default async function Ingresar({ searchParams }: PageProps<"/ingresar">)
     <div className="wrap" style={{ maxWidth: 480 }}>
       <div className="page-head">
         <h1>Entrar a Changa</h1>
+        {next.endsWith("/resenar") && <p className="aviso" role="status">Para dejar una reseña necesitás entrar con tu email. Así evitamos reseñas falsas.</p>}
         <p className="muted">Sin contraseñas: te mandamos un enlace a tu mail y listo. Para buscar y contactar no hace falta cuenta.</p>
       </div>
       {sp.error && (

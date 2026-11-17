@@ -52,7 +52,7 @@ export function ProfileForm({ initial }: { initial: ProfileInitial }) {
       {state.ok && <p className="aviso aviso-ok" role="status">{state.ok}</p>}
 
       <section className="panel stack" aria-labelledby="s1">
-        <h2 id="s1">1. Quién sos</h2>
+        <h2 id="s1">2. Quién sos</h2>
         <div className="field">
           <label htmlFor="displayName">Tu nombre<span className="hint">Como te conocen los clientes. Ej.: Juan Pérez o Juan el plomero.</span></label>
           <input id="displayName" name="displayName" type="text" defaultValue={initial.displayName} autoComplete="name"
@@ -81,7 +81,7 @@ export function ProfileForm({ initial }: { initial: ProfileInitial }) {
       </section>
 
       <section className="panel stack" aria-labelledby="s2" style={{ marginTop: 20 }}>
-        <h2 id="s2">2. Dónde trabajás</h2>
+        <h2 id="s2">3. Dónde trabajás</h2>
         <fieldset>
           <legend>¿Cómo querés marcar tu zona?</legend>
           <div className="row">
@@ -131,7 +131,7 @@ export function ProfileForm({ initial }: { initial: ProfileInitial }) {
       </section>
 
       <section className="panel stack" aria-labelledby="s3" style={{ marginTop: 20 }}>
-        <h2 id="s3">3. Cómo trabajás <span className="muted small">(opcional)</span></h2>
+        <h2 id="s3">4. Cómo trabajás <span className="muted small">(opcional)</span></h2>
         <div className="field">
           <label htmlFor="description">Contá qué hacés<span className="hint">Ej.: Destapaciones, cambio de cañerías y termotanques. Trabajo prolijo y con garantía.</span></label>
           <textarea id="description" name="description" defaultValue={initial.description} maxLength={800} aria-describedby="e-description" />
