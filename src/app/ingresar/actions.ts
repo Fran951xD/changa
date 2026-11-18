@@ -3,13 +3,14 @@ import { z } from "zod";
 import { headers } from "next/headers";
 import { db, schema } from "@/db";
 import { randomToken, rateLimit, safeNext, sha256, verifyTurnstile } from "@/lib/security";
-import { sendLoginEmail } from "@/lib/messaging";
+import { emailLoginEnabled, sendLoginEmail } from "@/lib/messaging";
 
 export type LoginState = { error?: string; sent?: string; demoUrl?: string };
 
 const Email = z.email({ error: "Revisá el email: parece que le falta algo (por ejemplo, la @)." });
 
 export async function requestLogin(_: LoginState, form: FormData): Promise<LoginState> {
+  if (!emailLoginEnabled()) return { error: "El ingreso con email no está disponible. Entrá con Google." };
   const parsed = Email.safeParse(String(form.get("email") ?? "").trim().toLowerCase());
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const email = parsed.data;

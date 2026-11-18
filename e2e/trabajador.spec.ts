@@ -14,11 +14,11 @@ test("un trabajador nuevo se registra, verifica su celular y publica su tarjeta"
 
   // Celular: número como lo escribe la gente; el código aparece en modo demo.
   await page.getByLabel("Número de celular").fill("11 15 4321-0000");
-  await page.getByRole("button", { name: "Mandarme el código" }).click();
-  const code = await page.locator(".aviso-demo strong").textContent();
-  await page.getByLabel("Código de 6 números").fill(code!);
-  await page.getByRole("button", { name: "Verificar" }).click();
-  await expect(page.getByText("Verificado: 11 4321-0000")).toBeVisible();
+  await page.getByRole("button", { name: "Seguir" }).click();
+  // Sin SMS (como en producción): se abre WhatsApp hacia el número cargado y el trabajador confirma que es su chat.
+  await expect(page.getByRole("link", { name: "Abrir WhatsApp" })).toHaveAttribute("href", /^https:\/\/wa\.me\/5491143210000\?text=/);
+  await page.getByRole("button", { name: "Sí, se abrió mi chat" }).click();
+  await expect(page.getByText("Confirmado: 11 4321-0000")).toBeVisible();
 
   await page.getByPlaceholder("Buscar: gas, pintor, aire…").fill("electri");
   await page.getByText("Electricidad", { exact: true }).click();

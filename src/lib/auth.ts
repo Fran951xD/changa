@@ -37,7 +37,10 @@ export const getUser = cache(async () => {
     .from(schema.sessions)
     .innerJoin(schema.users, eq(schema.users.id, schema.sessions.userId))
     .where(and(eq(schema.sessions.tokenHash, sha256(token)), gt(schema.sessions.expiresAt, new Date())));
-  return row ?? null;
+  if (!row) return null;
+  // ADMIN_EMAILS (separados por coma): así moderás con tu cuenta de Google sin tocar la base.
+  const admins = (process.env.ADMIN_EMAILS ?? "").toLowerCase().split(",").map((e) => e.trim()).filter(Boolean);
+  return { ...row, isAdmin: row.isAdmin || admins.includes(row.email) };
 });
 
 export async function requireUser(next = "/panel") {
