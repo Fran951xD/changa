@@ -3,7 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getWorkerForUser, missingForPublish } from "@/lib/workers";
-import { formatArPhone } from "@/lib/phone";
+import { formatArPhone, whatsappLink } from "@/lib/phone";
+import { phoneMode } from "@/lib/messaging";
+import { siteHost } from "@/lib/share";
 import { ProfileForm } from "./ProfileForm";
 import { PhoneVerify } from "./PhoneVerify";
 import { Photos } from "./Photos";
@@ -22,13 +24,14 @@ export default async function PerfilPage() {
         <h1>Tu tarjeta</h1>
         <p className="muted">
           {w.status === "published"
-            ? <>Tu perfil está publicado en <Link href={`/${w.slug}`}>changa.app/{w.slug}</Link>.</>
+            ? <>Tu perfil está publicado en <Link href={`/${w.slug}`}>{siteHost()}/{w.slug}</Link>.</>
             : missing.length
               ? `Para publicar te falta: ${missing.join(", ")}. Lo demás es opcional y lo podés completar después.`
               : "Ya podés publicar tu perfil."}
         </p>
       </div>
-      <PhoneVerify current={w.phone && w.phoneVerifiedAt ? formatArPhone(w.phone) : null} pending={w.pendingPhone} />
+      <PhoneVerify current={w.phone && w.phoneVerifiedAt ? formatArPhone(w.phone) : null} pending={w.pendingPhone} mode={phoneMode()}
+        pendingWa={w.pendingPhone ? whatsappLink(w.pendingPhone, "Confirmo mi número para Changa") : null} />
       <div style={{ marginTop: 20 }}>
         <ProfileForm initial={{
           displayName: w.displayName, trades: w.trades, description: w.description, yearsExperience: w.yearsExperience,

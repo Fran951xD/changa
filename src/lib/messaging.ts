@@ -3,6 +3,18 @@ import { isDemo } from "./security";
 
 type Sent = { demo?: string };
 
+/** Sin Resend (hace falta dominio propio) el ingreso por mail solo existe en modo demo; queda Google. */
+export const emailLoginEnabled = () => Boolean(process.env.RESEND_API_KEY) || isDemo();
+
+/**
+ * Cómo se confirma el celular: código por SMS con Twilio (o en pantalla en modo demo), o, sin SMS,
+ * abriendo WhatsApp hacia el número cargado. shortcut: lo de WhatsApp frena errores de tipeo pero no prueba
+ * titularidad; para eso, Twilio o la API de WhatsApp Business con un número de Changa.
+ */
+export const phoneMode = (): "sms" | "whatsapp" =>
+  process.env.PHONE_VERIFICATION === "whatsapp" ? "whatsapp" // forzado (lo usan las e2e para probar el camino de producción)
+    : (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_FROM) || isDemo() ? "sms" : "whatsapp";
+
 /** Enlace mágico. Con RESEND_API_KEY manda el mail; en modo demo devuelve el enlace para mostrarlo. */
 export async function sendLoginEmail(to: string, url: string): Promise<Sent> {
   const key = process.env.RESEND_API_KEY;

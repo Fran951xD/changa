@@ -9,13 +9,13 @@ import { profileFromForm } from "@/lib/validation";
 import { getWorkerForUser, missingForPublish, uniqueSlug } from "@/lib/workers";
 import { AREA_BY_SLUG } from "@/data/areas";
 import { TRADE_BY_SLUG } from "@/data/trades";
-import { normalizeArPhone } from "@/lib/phone";
+import { normalizeArPhone, whatsappLink } from "@/lib/phone";
 import { profileSlugBase } from "@/lib/slug";
 import { rateLimit, sha256 } from "@/lib/security";
-import { sendSmsCode } from "@/lib/messaging";
+import { phoneMode, sendSmsCode } from "@/lib/messaging";
 import { saveImage, UploadError } from "@/lib/images";
 
-export type FormState = { ok?: string; error?: string; fieldErrors?: Record<string, string>; demo?: string };
+export type FormState = { ok?: string; error?: string; fieldErrors?: Record<string, string>; demo?: string; wa?: string };
 
 async function currentWorker() {
   const user = await requireUser("/panel/perfil");
@@ -103,6 +103,10 @@ export async function sendPhoneCode(_: FormState, form: FormData): Promise<FormS
   const phone = normalizeArPhone(String(form.get("phone") ?? ""));
   if (!phone) return { error: "No entendimos el número. Escribilo con el código de área, por ejemplo 11 2345-6789." };
   if (!(await rateLimit("sms", 5, 3600, worker.id))) return { error: "Pediste muchos códigos. Esperá una hora y probá de nuevo." };
+  if (phoneMode() === "whatsapp") {
+    await db.update(schema.workers).set({ pendingPhone: phone, phoneCodeHash: null, phoneCodeExpiresAt: null }).where(eq(schema.workers.id, worker.id));
+    return { ok: "Ahora confirmá que es tu WhatsApp.", wa: whatsappLink(phone, "Confirmo mi número para Changa") };
+  }
   const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
   await db.update(schema.workers).set({
     pendingPhone: phone,
@@ -117,6 +121,17 @@ export async function sendPhoneCode(_: FormState, form: FormData): Promise<FormS
     console.error(e);
     return { error: "No pudimos mandar el SMS. Revisá el número o probá en unos minutos." };
   }
+}
+
+/** Sin SMS: el trabajador abrió WhatsApp hacia el número cargado y confirma que era su propio chat. */
+export async function confirmOwnPhone(): Promise<FormState> {
+  const { worker } = await currentWorker();
+  if (phoneMode() !== "whatsapp") return { error: "Escribí el código que te mandamos por SMS." }; // con SMS no se saltea el código
+  if (!worker.pendingPhone) return { error: "Primero escribí tu número." };
+  await db.update(schema.workers).set({ phone: worker.pendingPhone, phoneVerifiedAt: new Date(), pendingPhone: null })
+    .where(eq(schema.workers.id, worker.id));
+  revalidatePath("/panel", "layout");
+  return { ok: "¡Listo! Tu celular quedó confirmado." };
 }
 
 export async function verifyPhoneCode(_: FormState, form: FormData): Promise<FormState> {
