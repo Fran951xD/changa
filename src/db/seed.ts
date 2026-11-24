@@ -23,6 +23,16 @@ function rand() {
 const pick = <T,>(a: readonly T[]) => a[Math.floor(rand() * a.length)];
 const chance = (p: number) => rand() < p;
 const int = (min: number, max: number) => min + Math.floor(rand() * (max - min + 1));
+/** Mezcla Fisher-Yates: siempre consume los mismos rand(), así la semilla da los mismos datos en cualquier versión de Node.
+ *  (`sort(() => rand() - 0.5)` no: cuántas veces se llama al comparador depende del motor, y la CI usa otro Node.) */
+function shuffle<T>(a: readonly T[]): T[] {
+  const r = [...a];
+  for (let i = r.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [r[i], r[j]] = [r[j], r[i]];
+  }
+  return r;
+}
 const DAY = 86_400_000;
 
 const FIRST_M = ["Juan", "Carlos", "Jorge", "Luis", "Miguel", "Diego", "Martín", "Sergio", "Pablo", "Gustavo", "Walter", "Rubén", "Claudio", "Hernán", "Matías", "Leandro", "Ezequiel", "Damián", "Raúl", "Néstor", "Fabián", "Cristian", "Ramón", "Ariel", "Lucas", "Gonzalo"];
@@ -120,6 +130,10 @@ async function main() {
   // En Buenos Aires, el interior (La Plata, Mar del Plata, Bahía Blanca…): el GBA ya está cubierto.
   const poolOf = (p: string) => ALL_AREAS.filter((a) => a.province === p && !a.region.startsWith("GBA "));
   const extraPools = EXTRA.flatMap(([p, n]) => Array.from({ length: n }, () => poolOf(p)));
+  // En provincia, el primero y los plomeros y electricistas (lo más buscado) viven en la capital, la primera ciudad de la lista:
+  // así la demo siempre muestra resultados donde más se busca.
+  const firstOfProvince = new Set<number>();
+  EXTRA.reduce((inicio, [, n]) => (firstOfProvince.add(inicio), inicio + n), 0);
   const TOTAL = 60 + extraPools.length;
 
   console.log(`Creando ${TOTAL} trabajadores…`);
@@ -138,10 +152,13 @@ async function main() {
 
     const pool = i < 60 ? AREAS : extraPools[i - 60];
     // En provincia, sesgo a la primera ciudad de la lista (la capital); las ciudades están más lejos entre sí: 25 km.
-    const home = i === 0 ? AREAS.find((a) => a.slug === "palermo")! : pool[Math.floor(rand() ** (i < 60 ? 1.3 : 2.5) * pool.length)];
+    const homeRand = rand(); // se consume siempre, para no correr la secuencia del resto
+    const home = i === 0 ? AREAS.find((a) => a.slug === "palermo")!
+      : i >= 60 && (firstOfProvince.has(i - 60) || mainTrade === "plomeria" || mainTrade === "electricidad") ? pool[0]
+      : pool[Math.floor(homeRand ** (i < 60 ? 1.3 : 2.5) * pool.length)];
     const radiusMode = i !== 0 && chance(i < 60 ? 0.2 : 0.35);
-    const near = pool.filter((a) => a.slug !== home.slug && distanceKm(home.lat, home.lng, a.lat, a.lng) < (i < 60 ? 6.5 : 25))
-      .sort(() => rand() - 0.5).slice(0, int(2, 8));
+    const near = shuffle(pool.filter((a) => a.slug !== home.slug && distanceKm(home.lat, home.lng, a.lat, a.lng) < (i < 60 ? 6.5 : 25)))
+      .slice(0, int(2, 8));
     const areas = [home, ...near];
 
     const user = (await db.insert(s.users).values({ email: i === 0 ? "juan@changa.test" : `trabajador${i}@changa.test`, name: `${first} ${last}` }).returning())[0];
@@ -193,7 +210,7 @@ async function main() {
 
     // Reseñas: cada una con su contacto previo, como exige la regla.
     const nReviews = i === 0 ? 9 : Math.floor(rand() ** 1.4 * 13);
-    const authors = [...clients].sort(() => rand() - 0.5).slice(0, nReviews);
+    const authors = shuffle(clients).slice(0, nReviews);
     let sum = 0;
     for (const author of authors) {
       const roll = rand();
