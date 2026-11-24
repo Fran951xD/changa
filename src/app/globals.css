@@ -28,6 +28,10 @@ body {
   font-family: var(--font);
   font-size: 1.0625rem;
   line-height: 1.5;
+  /* El footer queda abajo aunque la página sea corta. */
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 img { max-width: 100%; display: block; }
 a { color: var(--azul); text-underline-offset: 3px; }
@@ -43,7 +47,7 @@ p { margin: 0 0 1em; }
 .skip:focus { top: 8px; color: #fff; }
 
 .wrap { max-width: var(--ancho); margin: 0 auto; padding: 0 16px; }
-main { min-height: 70vh; padding-bottom: 48px; }
+main { flex: 1 0 auto; padding-bottom: 48px; }
 .muted { color: var(--tinta-2); }
 .small { font-size: .9rem; }
 .stack > * + * { margin-top: 16px; }
