@@ -8,6 +8,7 @@ import { eligibilityFor, refreshRating } from "@/lib/reviews";
 import { ReviewSchema } from "@/lib/validation";
 import { rateLimit } from "@/lib/security";
 import { publicName } from "@/lib/review-rules";
+import { isUniqueViolation } from "@/lib/db-errors";
 
 export type ReviewState = { error?: string; fieldErrors?: Record<string, string> };
 
@@ -37,8 +38,9 @@ export async function createReview(_: ReviewState, form: FormData): Promise<Revi
 
   try {
     await db.insert(schema.reviews).values({ workerId: worker.id, authorId: user.id, authorName: publicName(name), ...parsed.data });
-  } catch {
-    return { error: "Ya dejaste una reseña para este trabajador." }; // índice único (worker, autor)
+  } catch (e) {
+    if (isUniqueViolation(e)) return { error: "Ya dejaste una reseña para este trabajador." }; // índice único (worker, autor)
+    throw e;
   }
   if (!user.name) await db.update(schema.users).set({ name }).where(eq(schema.users.id, user.id));
   await refreshRating(worker.id);

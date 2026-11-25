@@ -3,13 +3,13 @@ import { createHash, randomBytes } from "node:crypto";
 import { headers } from "next/headers";
 import { sql } from "drizzle-orm";
 import { db, schema } from "@/db";
+import { ipFromHeaders } from "./ip";
 
 export const randomToken = () => randomBytes(32).toString("base64url");
 export const sha256 = (s: string) => createHash("sha256").update(s).digest("hex");
 
 export async function clientIp() {
-  const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "local";
+  return ipFromHeaders(await headers());
 }
 
 /**
@@ -50,4 +50,5 @@ export function safeNext(next: unknown, fallback = "/panel") {
   return typeof next === "string" && /^\/(?![/\\])/.test(next) ? next : fallback;
 }
 
-export const isDemo = () => process.env.DEMO_MODE?.trim() === "1" || process.env.NODE_ENV !== "production";
+// Solo con DEMO_MODE=1 explícito: si falta la variable, la app se cierra en vez de mostrar enlaces en pantalla.
+export const isDemo = () => process.env.DEMO_MODE?.trim() === "1";

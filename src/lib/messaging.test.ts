@@ -30,4 +30,11 @@ describe("modos de ingreso y de confirmación del celular", () => {
     vi.stubEnv("PHONE_VERIFICATION", "whatsapp");
     expect(phoneMode()).toBe("whatsapp");
   });
+
+  it("sin DEMO_MODE=1 no hay modo demo, aunque NODE_ENV no sea production", () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("DEMO_MODE", "");
+    expect(emailLoginEnabled()).toBe(false);
+    expect(phoneMode()).toBe("whatsapp");
+  });
 });
