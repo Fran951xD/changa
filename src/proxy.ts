@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { ipFromHeaders } from "@/lib/ip";
 
 // Límite general de lectura por IP (las acciones sensibles tienen además su límite en Postgres).
 // shortcut: el contador vive en la memoria de cada instancia; en Vercel sumar una regla de rate limit del firewall para un límite global.
@@ -19,7 +20,7 @@ function allowed(ip: string, now = Date.now()) {
 }
 
 export function proxy(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+  const ip = ipFromHeaders(request.headers);
   if (!allowed(ip)) {
     return new NextResponse("Hiciste demasiados pedidos seguidos. Esperá un minuto y volvé a intentar.", {
       status: 429,
