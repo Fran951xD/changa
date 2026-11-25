@@ -14,9 +14,9 @@ En Argentina, conseguir un plomero, electricista o gasista de confianza depende 
 
 **Clientes (sin cuenta):** buscan por oficio y barrio, o usan su ubicación; ven los resultados en lista o mapa; filtran por "disponible ahora", urgencias, matrícula, calificación y medios de pago; tocan "WhatsApp" y se abre el chat con un mensaje ya armado ("Hola Juan, te encontré en Changa. Necesito un plomero en Palermo para…"). También pueden pedir presupuesto a hasta 3 trabajadores a la vez, con fotos.
 
-**Trabajadores:** entran con enlace mágico o Google, verifican su celular y arman su tarjeta (oficios, barrios o radio en km, horarios, urgencias, medios de pago, matrícula, hasta 8 fotos). En el panel tienen el interruptor "Disponible ahora" (se apaga solo a las 8 horas), visitas y contactos por semana, los pedidos de presupuesto, sus reseñas para responder en público, su link propio (`changa.app/juan-plomero`), un QR y una hoja de tarjetas tamaño imán para imprimir.
+**Trabajadores:** entran con Google (o con enlace mágico por mail, si hay proveedor de correo configurado), confirman su celular y arman su tarjeta (oficios, barrios o radio en km, horarios, urgencias, medios de pago, matrícula, hasta 8 fotos). En el panel tienen el interruptor "Disponible ahora" (se apaga solo a las 8 horas), visitas y contactos por semana, los pedidos de presupuesto, sus reseñas para responder en público, su link propio (`changa.app/juan-plomero`), un QR y una hoja de tarjetas tamaño imán para imprimir.
 
-**Reseñas confiables:** solo reseña quien contactó desde Changa, entre 1 y 60 días después, una vez por trabajador. El trabajador responde y puede denunciar, pero no borrar.
+**Reseñas confiables:** solo reseña quien contactó desde Changa, entre 1 y 60 días después, una vez por trabajador. Tomé el "1 día" literal: recién a las 24 h del contacto, para que la reseña cuente el trabajo y no la primera charla (`REVIEW_MIN_DAYS` en `src/lib/review-rules.ts`). El trabajador responde y puede denunciar, pero no borrar.
 
 **Moderación:** denuncias de perfiles y reseñas, y un panel para ocultarlas o descartarlas.
 
@@ -42,11 +42,15 @@ La idea viene del imán de heladera con el número del plomero y la tarjeta que 
 | **Límites de uso en Postgres** | Ventana fija por IP hasheada: funciona igual con una o cien instancias serverless, sin Redis. Además hay un límite general en el proxy, alto a propósito porque muchas líneas móviles comparten IP (CGNAT). |
 | **Imágenes** | `sharp` endereza, borra metadatos (incluido el GPS), achica a WebP de 1200 px + miniatura de 400 px. Se sirven con caché inmutable. Se guardan en Postgres (unos 60 KB cada una): entra en el plan gratis y se pasa a R2/Blob cambiando un archivo. |
 | **Mapa con Leaflet + OpenStreetMap** | Se carga solo al abrir la vista de mapa. Las ubicaciones se redondean a ~1 km. |
-| **Todo el país, primero la provincia** | Las 24 jurisdicciones con sus ciudades principales (y los barrios de CABA y localidades del GBA). Se elige la provincia y la ciudad se autocompleta solo dentro de ella. Lista curada sin API externa (`src/data/provinces.ts`); para todas las localidades se puede sumar Georef. La semilla sigue en CABA y GBA. |
+| **Todo el país, primero la provincia** | Las 24 jurisdicciones con sus ciudades principales (y los barrios de CABA y localidades del GBA). Se elige la provincia y la ciudad se autocompleta solo dentro de ella. Lista curada sin API externa (`src/data/provinces.ts`); para todas las localidades se puede sumar Georef. La semilla trae 60 trabajadores en CABA y GBA y 37 repartidos en el resto de las provincias. |
 | **Turnstile** en ingreso, presupuestos y denuncias | Se activa al configurar las claves; sin ellas (desarrollo) no aparece. |
 | **Nada de "pagar para aparecer"** | Orden por disponibilidad, cercanía o calificación (promedio bayesiano, para que 1 reseña de 5 no le gane a 40 de 4,8). |
 
-El modelo de datos (`src/db/schema.ts`) deja lugar para pagos (colgando de `quote_requests`) y chat (colgando de `contacts`) sin romper lo actual. `PLAN.md` tiene las preguntas abiertas del pedido original y qué decidí en cada una.
+El modelo de datos (`src/db/schema.ts`) deja lugar para pagos (colgando de `quote_requests`) y chat (colgando de `contacts`) sin romper lo actual.
+
+**Confirmar el celular sin pagar SMS.** En Argentina no hay SMS gratis confiable. En vez de Twilio, el trabajador abre WhatsApp hacia el número que cargó y confirma que se abrió su propio chat: frena los errores de tipeo sin costo. Si se configura Twilio Verify, se usa el código por SMS (`src/lib/messaging.ts` elige el modo).
+
+**Pedidos de presupuesto sin chat propio.** Le aparecen al trabajador en el panel con un botón para responder por WhatsApp, que es donde ya habla con sus clientes.
 
 ## Pruebas
 
@@ -74,6 +78,10 @@ npm install
 ```
 
 ```bash
+cp .env.example .env.local
+```
+
+```bash
 npm run db:seed
 ```
 
@@ -81,7 +89,7 @@ npm run db:seed
 npm run dev
 ```
 
-Abrí http://localhost:3000. La semilla carga 60 trabajadores ficticios en CABA y el GBA, con reseñas y estadísticas. Sin proveedores configurados, la app corre en **modo demo**: el enlace mágico y el código SMS aparecen en pantalla.
+Abrí http://localhost:3000. La semilla carga 60 trabajadores ficticios en CABA y el GBA, con reseñas y estadísticas. El `.env.local` de ejemplo trae `DEMO_MODE=1`, así que el enlace mágico y el código SMS aparecen en pantalla. El modo demo solo se activa con esa variable explícita: si falta, la app no muestra nada (falla cerrada).
 
 Cuentas de prueba: `juan@changa.test` (trabajador, perfil `/juan-plomero`), `cliente@changa.test` (clienta que puede reseñar a Juan), `admin@changa.test` (moderación).
 
@@ -110,8 +118,8 @@ La integración continua (`.github/workflows/ci.yml`) corre tipos, lint, unitari
 
 ## Pendiente / límites conocidos
 
-- **La demo corre en modo demo:** sin mail, SMS, Google ni Turnstile configurados.
-- **El SMS cuesta plata** (Twilio). Una alternativa gratis a evaluar: verificar pidiendo que el trabajador mande un WhatsApp a un número de Changa.
+- **Ingreso por mail:** el enlace mágico está hecho, pero Resend necesita dominio propio; mientras tanto en producción se entra con Google.
+- **Confirmar por WhatsApp frena errores de tipeo, pero no prueba que el número sea del trabajador.** Para eso hace falta Twilio Verify o la API de WhatsApp Business con un número de Changa (las dos son pagas).
 - **Matrícula:** se muestra como "informada". No se valida contra los entes (Enargas, colegios).
 - **Avisos al trabajador:** los pedidos de presupuesto aparecen en el panel, sin mail ni push.
 - **Sin Content-Security-Policy:** hay headers de seguridad básicos, pero falta una CSP con nonces (Next, Turnstile y las teselas del mapa la complican).
